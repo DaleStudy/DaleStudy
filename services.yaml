@@ -1,0 +1,219 @@
+# 달레 스터디 서비스 배포 정보. DEPLOYMENTS.md와 다르면 이 파일이 기준이다.
+#
+# expect는 각 주소에 요청했을 때 정상 응답이다.
+# signature는 응답 헤더로 호스팅을 구분한 값이다. GitHub Pages도 Cloudflare 프록시 뒤에서는
+# server: cloudflare를 돌려주므로 server 헤더만으로는 구분할 수 없다.
+#   github-pages: x-github-request-id 헤더가 있음
+#   fly: fly-request-id 헤더가 있음
+#   cloudflare: server: cloudflare이고 x-github-request-id가 없음
+#   vercel: server: Vercel
+
+verified_at: 2026-10-04
+
+accounts:
+  cloudflare-dalestudy:
+    provider: cloudflare
+    account_id: 94480614a6df7731f1e4491bdac5c440
+    workers_subdomain: dalestudy.workers.dev
+    zones: [dalestudy.com, daleui.com]
+    owner: TODO
+  cloudflare-daleseo:
+    provider: cloudflare
+    account_id: 86aa227176a624680f7d34e691472576
+    workers_subdomain: daleseo.workers.dev
+    owner: TODO
+  fly:
+    provider: fly
+    owner: TODO
+  github-pages:
+    provider: github
+    owner: DaleStudy org
+
+services:
+  - id: dalestudy-com
+    name: 웹사이트
+    repo: DaleStudy/dalestudy.com
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: dalestudy }
+    deploy: { method: workers-builds, branch: main }
+    endpoints:
+      - url: https://dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: cloudflare }
+      - url: https://www.dalestudy.com
+        role: redirect
+        expect: { method: GET, status: 301, signature: cloudflare, location: https://dalestudy.com/ }
+
+  - id: leetcode
+    name: 리트코드 스터디
+    repo: DaleStudy/homepage
+    hosting: { provider: github, platform: pages, account: github-pages, source: legacy-branch }
+    deploy: { method: pages-branch, branch: main }
+    endpoints:
+      - url: https://leetcode.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: github-pages }
+
+  - id: leaderboard
+    name: 리더보드
+    repo: DaleStudy/leaderboard
+    hosting: { provider: github, platform: pages, account: github-pages }
+    deploy: { method: github-actions, workflow: deployment.yml, branch: main }
+    endpoints:
+      - url: https://leaderboard.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: github-pages }
+    artifacts:
+      - kind: storybook
+        host: chromatic
+        url: https://main--67451d0423c813a4784afd4a.chromatic.com
+    depends_on:
+      - service: graphql
+        how: src/api/infra/gitHub/gitHubClient.ts에 하드코딩
+
+  - id: chat
+    name: 챗봇
+    repo: DaleStudy/chat
+    path: frontend/
+    hosting: { provider: github, platform: pages, account: github-pages }
+    deploy: { method: github-actions, workflow: deploy.yml, branch: main }
+    endpoints:
+      - url: https://chat.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: github-pages }
+    depends_on:
+      - service: chat-backend
+        how: Actions 변수 VITE_API_URL
+
+  - id: chat-backend
+    name: 챗봇 API
+    repo: DaleStudy/chat
+    path: backend/
+    hosting: { provider: fly, account: fly, app: dalestudy-chat-backend }
+    deploy: { method: manual, command: fly deploy }
+    endpoints:
+      - url: https://dalestudy-chat-backend.fly.dev
+        role: primary
+        expect: { method: GET, status: 200, signature: fly }
+
+  - id: schedule
+    name: 스케줄
+    repo: DaleStudy/schedule
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: schedule }
+    deploy: { method: workers-builds, branch: main }
+    endpoints:
+      - url: https://schedule.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: cloudflare }
+      - url: https://schedule.dalestudy.workers.dev
+        role: alias
+        expect: { method: GET, status: 200, signature: cloudflare }
+
+  - id: coffee
+    name: 커피챗
+    repo: DaleStudy/coffee
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: coffee }
+    deploy: { method: workers-builds, branch: main }
+    endpoints:
+      - url: https://coffee.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: cloudflare }
+      - url: https://coffee.dalestudy.workers.dev
+        role: alias
+        expect: { method: GET, status: 200, signature: cloudflare }
+
+  - id: feedback
+    name: 피드백
+    repo: DaleStudy/feedback
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: feedback }
+    deploy: { method: workers-builds, branch: main }
+    endpoints:
+      - url: https://feedback.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 200, signature: cloudflare }
+
+  - id: github-app
+    name: GitHub App
+    repo: DaleStudy/github
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: github }
+    deploy: { method: workers-builds, branch: main }
+    endpoints:
+      - url: https://github.dalestudy.com
+        role: primary
+        expect: { method: GET, status: 405, signature: cloudflare }
+      - url: https://github.dalestudy.workers.dev
+        role: alias
+        expect: { method: GET, status: 405, signature: cloudflare }
+    depends_on:
+      - account: cloudflare-daleseo
+        how: AI Gateway
+    used_by:
+      - repo: DaleStudy/leetcode-study
+        how: Actions 워크플로우
+
+  - id: community-manager
+    name: 커뮤니티 매니저
+    repo: DaleStudy/community-manager
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: community-manager }
+    deploy: { method: github-actions, workflow: deploy.yml, branch: main }
+    endpoints:
+      - url: https://community-manager.dalestudy.workers.dev
+        role: primary
+        expect: { method: GET, status: 405, signature: cloudflare }
+    depends_on:
+      - account: cloudflare-daleseo
+        how: AI Gateway
+
+  - id: graphql
+    name: GraphQL API
+    repo: DaleStudy/graphql
+    hosting: { provider: cloudflare, platform: containers, account: cloudflare-daleseo, worker: graphql }
+    deploy: { method: github-actions, workflow: deploy.yml, branch: main }
+    endpoints:
+      - url: https://graphql.daleseo.workers.dev
+        role: primary
+        expect: { method: POST, body: '{"query":"{ __typename }"}', status: 200, signature: cloudflare }
+
+  - id: daleui-site
+    name: 달레 UI 웹사이트
+    repo: DaleStudy/daleui.com
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: daleui }
+    deploy: { method: github-actions, workflow: deploy.yml, branch: main }
+    endpoints:
+      - url: https://www.daleui.com
+        role: primary
+        expect: { method: GET, status: 200, signature: cloudflare }
+        notes: 대표 주소 미정
+      - url: https://daleui.com
+        role: alias
+        expect: { method: GET, status: 200, signature: cloudflare }
+
+  - id: daleui
+    name: 달레 UI
+    repo: DaleStudy/daleui
+    artifacts:
+      - kind: npm
+        url: https://www.npmjs.com/package/daleui
+        deploy: { method: github-actions, workflow: publication.yml }
+      - kind: storybook
+        host: chromatic
+        url: https://main--675790d317ba346348aa3490.chromatic.com
+        deploy: { method: github-actions, workflow: chromatic.yml }
+
+  - id: skills
+    name: 에이전트 스킬
+    repo: DaleStudy/skills
+    hosting: { provider: external, platform: skills.sh }
+    endpoints:
+      - url: https://www.skills.sh/dalestudy/skills
+        role: primary
+        expect: { method: GET, status: 200, signature: vercel }
+
+non_deployed:
+  - DaleStudy/.github
+  - DaleStudy/DaleStudy
+  - DaleStudy/leetcode-study
+  - DaleStudy/ai-study
+  - DaleStudy/english-interview
+  - DaleStudy/blog-study
+  - DaleStudy/coffee-chat
+  - DaleStudy/hackathon-blog
