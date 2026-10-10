@@ -25,17 +25,6 @@
 
 리더보드도 Chromatic에 Storybook을 배포합니다. 나머지 저장소(`.github`, `DaleStudy`, `book-study`, `leetcode-study`, `ai-study`, `english-interview`, `blog-study`, `coffee-chat`, `hackathon-blog`)는 배포하지 않습니다.
 
-## 참조되지 않는 배포
-
-살아 있지만 어떤 서비스도 참조하지 않습니다. 정리 여부는 따로 논의합니다.
-
-| 주소 | 저장소 | 호스팅 | 비고 |
-| --- | --- | --- | --- |
-| `dalestudy.fly.dev` | - | Fly (`dalestudy`) | 옛 graphql 배포 |
-| `dalemcp.fly.dev` | `mcp` (비공개) | Fly (`dalemcp`) | 타임아웃 |
-| `scheduler.dalestudy.workers.dev` | [schedule](https://github.com/DaleStudy/schedule) | Cloudflare Workers (`scheduler`) | `schedule`로 이름을 바꾸기 전 배포. 5분마다 cron이 돌고 별도 D1을 사용 |
-| [dalestudy.github.io/daleui](https://dalestudy.github.io/daleui/) | [daleui](https://github.com/DaleStudy/daleui) | GitHub Pages | 옛 달레 UI 사이트 |
-
 ## 의존 관계
 
 ```mermaid

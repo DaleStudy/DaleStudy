@@ -208,24 +208,6 @@ services:
         role: primary
         expect: { method: GET, status: 200, signature: vercel }
 
-# 살아 있지만 어떤 서비스도 참조하지 않는 배포. 정리 여부는 따로 논의한다.
-unreferenced:
-  - url: https://dalestudy.fly.dev
-    hosting: { provider: fly, account: fly, app: dalestudy }
-    notes: 옛 graphql 배포
-  - url: https://dalemcp.fly.dev
-    repo: DaleStudy/mcp
-    hosting: { provider: fly, account: fly, app: dalemcp }
-    notes: 비공개 저장소. 타임아웃
-  - url: https://scheduler.dalestudy.workers.dev
-    repo: DaleStudy/schedule
-    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: scheduler }
-    notes: schedule로 이름을 바꾸기 전 배포. 5분마다 cron이 돌고 별도 D1을 사용
-  - url: https://dalestudy.github.io/daleui/
-    repo: DaleStudy/daleui
-    hosting: { provider: github, platform: pages, account: github-pages }
-    notes: 옛 달레 UI 사이트
-
 non_deployed:
   - DaleStudy/.github
   - DaleStudy/DaleStudy
