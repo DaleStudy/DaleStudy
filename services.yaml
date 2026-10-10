@@ -155,6 +155,7 @@ services:
     name: GraphQL API
     repo: DaleStudy/graphql
     hosting: { provider: cloudflare, platform: containers, account: cloudflare-daleseo, worker: graphql }
+    notes: Containers는 Workers Paid가 필요해 유료 플랜이 있는 daleseo 계정에 배포 (dalestudy 계정은 Free)
     deploy: { method: github-actions, workflow: deploy.yml, branch: main }
     endpoints:
       - url: https://graphql.daleseo.workers.dev
