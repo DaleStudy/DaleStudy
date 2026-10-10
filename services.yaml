@@ -4,7 +4,6 @@
 # signature는 응답 헤더로 호스팅을 구분한 값이다. GitHub Pages도 Cloudflare 프록시 뒤에서는
 # server: cloudflare를 돌려주므로 server 헤더만으로는 구분할 수 없다.
 #   github-pages: x-github-request-id 헤더가 있음
-#   fly: fly-request-id 헤더가 있음
 #   cloudflare: server: cloudflare이고 x-github-request-id가 없음
 #   vercel: server: Vercel
 
@@ -21,9 +20,6 @@ accounts:
     provider: cloudflare
     account_id: 86aa227176a624680f7d34e691472576
     workers_subdomain: daleseo.workers.dev
-    owner: DaleSeo (개인 계정)
-  fly:
-    provider: fly
     owner: DaleSeo (개인 계정)
   github-pages:
     provider: github
@@ -73,27 +69,19 @@ services:
   - id: chat
     name: 챗봇
     repo: DaleStudy/chat
-    path: frontend/
-    hosting: { provider: github, platform: pages, account: github-pages }
+    path: backend/
+    hosting: { provider: cloudflare, platform: workers, account: cloudflare-dalestudy, worker: chat }
     deploy: { method: github-actions, workflow: deploy.yml, branch: main }
     endpoints:
       - url: https://chat.dalestudy.com
         role: primary
-        expect: { method: GET, status: 200, signature: github-pages }
+        expect: { method: GET, status: 200, signature: cloudflare }
+      - url: https://chat.dalestudy.workers.dev
+        role: alias
+        expect: { method: GET, status: 200, signature: cloudflare }
     depends_on:
-      - service: chat-backend
-        how: Actions 변수 VITE_API_URL
-
-  - id: chat-backend
-    name: 챗봇 API
-    repo: DaleStudy/chat
-    path: backend/
-    hosting: { provider: fly, account: fly, app: dalestudy-chat-backend }
-    deploy: { method: manual, command: fly deploy }
-    endpoints:
-      - url: https://dalestudy-chat-backend.fly.dev
-        role: primary
-        expect: { method: GET, status: 200, signature: fly }
+      - account: cloudflare-daleseo
+        how: AI Gateway
 
   - id: schedule
     name: 스케줄

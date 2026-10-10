@@ -11,8 +11,7 @@
 | 웹사이트 | [dalestudy.com](https://github.com/DaleStudy/dalestudy.com) | [dalestudy.com](https://dalestudy.com) | Cloudflare Workers | Workers Builds |
 | 리트코드 스터디 | [homepage](https://github.com/DaleStudy/homepage) | [leetcode.dalestudy.com](https://leetcode.dalestudy.com) | GitHub Pages | 브랜치 배포 |
 | 리더보드 | [leaderboard](https://github.com/DaleStudy/leaderboard) | [leaderboard.dalestudy.com](https://leaderboard.dalestudy.com) | GitHub Pages | Actions |
-| 챗봇 | [chat](https://github.com/DaleStudy/chat) | [chat.dalestudy.com](https://chat.dalestudy.com) | GitHub Pages | Actions |
-| 챗봇 API | [chat](https://github.com/DaleStudy/chat) | `dalestudy-chat-backend.fly.dev` | Fly | 수동 |
+| 챗봇 | [chat](https://github.com/DaleStudy/chat) | [chat.dalestudy.com](https://chat.dalestudy.com) | Cloudflare Workers | Actions |
 | 스케줄 | [schedule](https://github.com/DaleStudy/schedule) | [schedule.dalestudy.com](https://schedule.dalestudy.com) | Cloudflare Workers | Workers Builds |
 | 커피챗 | [coffee](https://github.com/DaleStudy/coffee) | [coffee.dalestudy.com](https://coffee.dalestudy.com) | Cloudflare Workers | Workers Builds |
 | 피드백 | [feedback](https://github.com/DaleStudy/feedback) | [feedback.dalestudy.com](https://feedback.dalestudy.com) | Cloudflare Workers | Workers Builds |
@@ -30,18 +29,17 @@
 ```mermaid
 flowchart LR
   leaderboard[리더보드] -->|하드코딩| graphql[GraphQL API]
-  chat[챗봇] -->|VITE_API_URL| chat-backend[챗봇 API]
   leetcode-study[[leetcode-study 워크플로우]] --> github-app[GitHub App]
   github-app -->|AI Gateway| cf-daleseo[(Cloudflare daleseo 계정)]
   community-manager[커뮤니티 매니저] -->|AI Gateway| cf-daleseo
+  chat[챗봇] -->|AI Gateway| cf-daleseo
   graphql -.->|배포 위치| cf-daleseo
   daleui-site[달레 UI 웹사이트] -->|npm| daleui[달레 UI]
 ```
 
 - 리더보드는 GraphQL API를 사용합니다. 주소가 `src/api/infra/gitHub/gitHubClient.ts`에 하드코딩되어 있습니다.
-- 챗봇은 챗봇 API를 사용합니다. 주소는 Actions 변수 `VITE_API_URL`로 넣습니다.
 - `leetcode-study`의 워크플로우가 GitHub App을 호출합니다.
-- GitHub App과 커뮤니티 매니저는 `daleseo` 계정의 AI Gateway를 사용합니다.
+- GitHub App, 커뮤니티 매니저, 챗봇은 `daleseo` 계정의 AI Gateway를 사용합니다.
 
 ## 계정
 
@@ -49,5 +47,4 @@ flowchart LR
 | --- | --- | --- |
 | Cloudflare `dalestudy` (`dalestudy.workers.dev`) | GraphQL API를 제외한 Cloudflare 서비스 | admin@dalestudy.com |
 | Cloudflare `daleseo` (`daleseo.workers.dev`) | GraphQL API, AI Gateway | DaleSeo (개인 계정) |
-| Fly | 챗봇 API | DaleSeo (개인 계정) |
-| GitHub Pages | 리트코드 스터디, 리더보드, 챗봇 | DaleStudy org |
+| GitHub Pages | 리트코드 스터디, 리더보드 | DaleStudy org |
