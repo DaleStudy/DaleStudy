@@ -28,6 +28,8 @@
 
 Cloudflare Workers 서비스는 모두 GitHub Actions로 배포합니다. `main`에 머지되면 저장소의 `deploy.yml`이 `wrangler deploy`를 실행하고, Workers Builds는 쓰지 않습니다.
 
+자세한 규칙(시크릿 추가 절차, PR 미리보기 설정, URL 형식)은 [`cloudflare` 스킬](https://github.com/DaleStudy/skills/tree/main/skills/cloudflare)에 있습니다.
+
 - **시크릿:** Worker 시크릿의 원본은 GitHub 시크릿입니다. 배포할 때마다 Worker로 넣으므로 Cloudflare 대시보드나 `wrangler secret put`으로 따로 고치지 않습니다.
 - **PR 미리보기:** 웹사이트·스케줄·커피챗은 공유 워크플로우 [`DaleStudy/.github`의 `workers-preview.yml`](https://github.com/DaleStudy/.github/blob/main/.github/workflows/workers-preview.yml)로 Workers Previews(`wrangler preview`)를 띄워 `https://pr-<번호>-<worker>.dalestudy.workers.dev` 주소를 PR에 남기고, PR이 닫히면 지웁니다. 미리보기 설정은 저장소 `wrangler.jsonc`의 `previews` 블록을 따릅니다. 피드백은 운영 설문 데이터를 지키려고 미리보기 전용 D1을 쓰고, `https://pr-<번호>.feedback-preview.dalestudy.com`에 띄웁니다.
 
