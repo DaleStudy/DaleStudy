@@ -10,7 +10,7 @@ title: "운영진 온보딩: @"
 - [ ] GitHub `@DaleStudy/maintainer` 팀에 추가
 - [ ] Cloudflare `dalestudy` 계정 `maintainer` 그룹으로 초대
   - Cloudflare는 직접 정책을 하나 이상 요구하므로 `Minimal Account Access`를 함께 선택
-- [ ] Google 캘린더 `달레 스터디 운영진 정기 회의` 반복 일정에 초대
+- [ ] 구글 캘린더 `달레 스터디 운영진 정기 회의` 반복 일정에 초대
 - [ ] LinkedIn `DaleStudy` 페이지에 콘텐츠 관리자(Content admin)로 추가
 
 ## 스터디/프로젝트 리드인 경우
